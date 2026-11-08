@@ -1,0 +1,51 @@
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+configs/*local*.yaml
+configs/*private*.yaml
+.netrc
+.pypirc
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+
+# Operating-system artifacts
+.DS_Store
+.DS_store
+._*
+.AppleDouble/
+.LSOverride
+.Spotlight-V100/
+.Trashes/
+Thumbs.db
+Desktop.ini
+
+# Private data and generated artifacts
+data/
+!data/.gitkeep
+results/
+checkpoints/
+outputs/
+*.pkl
+*.bin
+*.npy
+
+# Python/editor artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+.venv/
+venv/
+*.swp
+*.swo
+*~
+
+# Review-only material must not be included in public release branches
+rebuttal/

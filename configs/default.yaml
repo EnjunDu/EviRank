@@ -1,0 +1,84 @@
+# EviRank Configuration
+# =====================
+# All paths are relative to the project root.
+# Replace placeholder paths with your actual data locations.
+
+models:
+  teacher_model:
+    type: closed_source
+    closed_source:
+      model_name: "gemini-2.0-flash"  # or gemini-2.0-pro
+      api_key: "${TEACHER_API_KEY}"   # Set via environment variable
+      base_url: "${TEACHER_API_URL}"  # Set via environment variable
+      temperature: 0.15
+      timeout_s: 60.0
+      max_retries: 0           # Preserve the default two-request contract
+    open_source:
+      model_name: "Qwen/Qwen2.5-VL-7B-Instruct"
+      device: cuda
+
+  student_model:
+    checkpoint_path: null  # Path to trained student checkpoint
+
+  embedding_model:
+    type: clip          # Options: clip, eva_clip, blip2
+    model_name: "ViT-B/32"
+    device: cuda
+
+index:
+  dimension: 512        # Must match embedding model dimension
+  index_path: "data/index/faiss_index.bin"
+  metadata_path: "data/index/metadata.pkl"
+  nprobe: 32
+
+dataset:
+  name: flickr30k      # Options: flickr30k, mscoco, sop, fashioniq
+  data_root: "data/flickr30k"
+
+retrieval:
+  top_k: 20            # Number of candidates for coarse retrieval
+  show_top_n: 10       # Number of results to display
+
+reranking:
+  use_listwise: true   # Whether to use P-RANK listwise teacher
+  listwise_top_m: 5    # Rubric top-M sent to one P-RANK request
+  batch_size: 5        # Must be >= listwise_top_m for one-call P-RANK
+  allow_divide_and_merge: false  # Opt-in only; adds teacher API calls
+  max_image_edge: 2048
+  jpeg_quality: 85
+
+  # Rubric scorer slot weights (sum should be ~1.0)
+  slot_weights:
+    entities: 0.25
+    attributes: 0.20
+    actions: 0.15
+    relations: 0.15
+    scene: 0.10
+    key_details: 0.15
+
+training:
+  num_epochs: 10
+  learning_rate: 1.0e-4
+  weight_decay: 0.01
+  batch_size: 16
+  gradient_clip: 1.0
+  hidden_dim: 512
+  output_dir: "checkpoints"
+
+distillation:
+  temperature: 3.0
+  lambda_slot: 0.5     # Weight for slot satisfaction loss
+  eta_hard: 0.3        # Weight for hard-pair margin loss
+
+evaluation:
+  k_values: [1, 5, 10, 20, 50]
+  split: test
+
+system:
+  seed: 42
+  num_workers: 4
+  log_level: INFO
+
+privacy:
+  # Optional private salt supplied as EVIRANK_ID_SALT. Never store it here.
+  persist_raw_paths: false
